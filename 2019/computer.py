@@ -255,7 +255,7 @@ def test_day9():
     assert Process([1102,34915192,34915192,7,4,7,99,]).run().output == [1219070632396864]
     assert Process([104,1125899906842624,99]).run().output == [1125899906842624]
 
-if __name__ == "__main2__":
+if __name__ == "__main__":
     test_day2()
     test_day5()
     test_day7p1()
