@@ -38,13 +38,17 @@ class Halter():
 class Inputter():
     optcode = 3
     params = 1
-    def __init__(self, inpt):
+    def __init__(self, inpt, in_fn=None):
         self.stored_input = inpt
+        self.in_fn=in_fn
     def __call__(self, state, memory, args):
         if len(self.stored_input)>0:
             v = self.stored_input.pop(0)
-        else:                   
-            v = int(input("input>"))
+        else:
+            if self.in_fn:
+                v = self.in_fn()
+            else:
+                v = int(input("input>"))
         write_with_param(0, memory, state.param_mode, args, state, v)
         state.ip += self.params
 
@@ -152,11 +156,11 @@ class Process():
         self.input = []
         self.input.extend(inpt)
         
-    def run(self, inpt=[], until_halted= False):
+    def run(self, inpt=[], until_halted= False, in_fn=None):
         self.input.extend(inpt)
 
         optcodes = {op.optcode: op() for op in [Adder, Timeser, Halter, JumpIfTrue, JumpIfFalse, LessThan, Equals, SetRelativeBase]}
-        optcodes[Inputter.optcode]= Inputter(self.input)
+        optcodes[Inputter.optcode]= Inputter(self.input, in_fn)
         optcodes[Outputter.optcode]=Outputter(self.output)
              
 
