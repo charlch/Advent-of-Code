@@ -2,27 +2,7 @@ from string import ascii_lowercase, ascii_uppercase
 from collections import deque
 
 
-data="""#########
-#b.A.@.a#
-#########"""
 
-data="""########################
-#f.D.E.e.C.b.A.@.a.B.c.#
-######################.#
-#d.....................#
-########################"""
-
-_data="""
-a.@.b
-##.##
-##c##
-"""
-_data="""########################
-#@..............ac.GI.b#
-###d#e#f################
-###A#B#C################
-###g#h#i################
-########################"""
 data = """#################################################################################
 #...........#.............#...#.....#...#...............#.....#.....#....t#.....#
 #.#####.###.###.#########.#.#.#.#.###.#.#.#####.#######.#.###.#.###.#.###.#.#.#.#
@@ -106,19 +86,19 @@ data = """######################################################################
 #################################################################################"""
 
 
-
-
+_data="""
+#########
+#BA@#@a##
+#c#######
+#####@b##
+#########
+"""
 bd = {}
 keys = {}
 doors = {}
-loc = None
+locs = []
 for y, line in enumerate(data.split("\n")):
-    if y>40:
-        continue
-
     for x, char in enumerate(line):
-        if x<40:
-            continue
         if char!="#":
             bd[(x,y)] = char
         if char in ascii_lowercase:
@@ -127,14 +107,9 @@ for y, line in enumerate(data.split("\n")):
             doors[char]=(x,y)
         if char == "@":
             bd[(x,y)] = '.'
-            loc = (x,y)
+            locs.append((x,y))
 all_keys = set(keys.keys())
-print(loc)
-for door, door_loc in doors.items():
-    if door.lower() not in keys:
-        bd[door_loc]='.'
-
-
+print(all_keys)
 UP=(0,-1);DO=(0,1);LE=(-1,0);RI=(1,0)
 directions = (UP,DO,LE,RI)
 
@@ -142,40 +117,66 @@ def add(a,b):
     return (a[0]+b[0], a[1]+b[1])
 
 
-
+best = 1e9
 q= deque()
-q.append((loc, frozenset(), 0))
-seen=set()
+q.append((tuple(locs), frozenset(), 0))
+seen={}
 while q:
     
     point = q.popleft()
 
-    point_key = (point[0], point[1])
-    if point_key in seen:
-        continue
-    seen.add(point_key)
-    point_loc=point[0]
+    point_locs=point[0]
     seen_keys = point[1]
     distance = point[2]
-    
-    
-    if point_loc not in bd:
+
+    point_key = (tuple(point_locs), frozenset(seen_keys))
+    if point_key in seen and distance>=seen[point_key]:
         continue
-    if bd[point_loc] in doors and bd[point_loc].lower() not in seen_keys:
+    seen[point_key] = distance
+
+    
+    new_seen_keys = set(seen_keys)
+    
+    bad=False
+    for point_loc in point_locs:
+        if point_loc not in bd: #not a real location
+            bad=True
+            break
+
+        if bd[point_loc] in doors and bd[point_loc].lower() not in seen_keys: # a door we dont have
+            bad=True
+            break
+    
+    if bad:
         continue
-    if bd[point_loc] in keys:
-        seen_keys2 = set(seen_keys)
-        seen_keys2.add(bd[point_loc])
-    else:
-        seen_keys2=seen_keys
-        
-    if seen_keys2 == all_keys:
-        print(distance)
-        print(520+580+364+351)
-        break
-    
-    
-    for d in directions:
-        q.append((add(point_loc, d), frozenset(seen_keys2), distance+1 ))
-    
-    
+
+    D = {}
+    q2 = deque()
+    for i,point_loc in enumerate(point_locs):
+        q2.append((point_loc, i,0))
+    while q2:
+        point_loc, i, d = q2.popleft()
+        if point_loc not in bd:
+            continue
+        if bd[point_loc] in doors and bd[point_loc].lower() not in seen_keys:
+            continue
+        if point_loc in D:
+            continue
+        D[point_loc] = (d,i)
+        for di in directions:
+            q2.append((add(point_loc, di), i, d+1))
+
+    for key, key_loc in keys.items():
+        if key not in seen_keys and key_loc in D:
+            d, i = D[key_loc]
+            new_locs = list(point_locs)
+            new_locs[i] = key_loc
+            new_keys = set(seen_keys)
+            new_keys.add(key)
+            new_dist = d+distance
+            if len(new_keys)==len(all_keys):
+                if new_dist<best:
+                    best=new_dist
+                    print(best)
+            q.append((tuple(new_locs) ,frozenset(new_keys),new_dist))
+            

@@ -38,10 +38,12 @@ class Halter():
 class Inputter():
     optcode = 3
     params = 1
-    def __init__(self, inpt, in_fn=None):
+    def __init__(self, inpt, in_fn=None, name=""):
         self.stored_input = inpt
         self.in_fn=in_fn
+        self.name=name
     def __call__(self, state, memory, args):
+  
         if len(self.stored_input)>0:
             v = self.stored_input.pop(0)
         else:
@@ -51,6 +53,8 @@ class Inputter():
                 v = int(input("input>"))
         write_with_param(0, memory, state.param_mode, args, state, v)
         state.ip += self.params
+        
+        return v
 
 class Outputter():
     optcode = 4
@@ -59,6 +63,7 @@ class Outputter():
         self.outpt=outpt
         
     def __call__(self, state, memory, args):
+  
         a = read_with_param(0, memory, state.param_mode, args, state)
         
         self.outpt.append(a)
@@ -148,7 +153,8 @@ def get_param_mode(optcode):
 
 
 class Process():
-    def __init__(self, memory, inpt=[]):
+    def __init__(self, memory, inpt=[], name=""):
+        self.name=name
         self.memory = memory.copy()
         self.memory.extend([0]*10000)
         self.state = State(ip = 0, halted = False, relative_base=0)
@@ -156,11 +162,12 @@ class Process():
         self.input = []
         self.input.extend(inpt)
         
-    def run(self, inpt=[], until_halted= False, in_fn=None):
+    def run(self, inpt=[], until_halted= False, in_fn=None, until_input_needed=False):
+        self.idle=False
         self.input.extend(inpt)
 
         optcodes = {op.optcode: op() for op in [Adder, Timeser, Halter, JumpIfTrue, JumpIfFalse, LessThan, Equals, SetRelativeBase]}
-        optcodes[Inputter.optcode]= Inputter(self.input, in_fn)
+        optcodes[Inputter.optcode]= Inputter(self.input, in_fn, name=self.name)
         optcodes[Outputter.optcode]=Outputter(self.output)
              
 
@@ -177,9 +184,13 @@ class Process():
             args = self.memory[self.state.ip:self.state.ip+operator.params]
         
                 
-            operator(self.state, self.memory, args)
+            r = operator(self.state, self.memory, args)
 
             if isinstance(operator, Outputter) and not until_halted:
+                return self
+
+            if until_input_needed and isinstance(operator, Inputter) and r == -1:
+                self.idle = True
                 return self
 
         return self
