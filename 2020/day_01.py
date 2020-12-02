@@ -215,11 +215,12 @@ data = [int(i) for i in data.split("\n")]
 print("Part 1:")
 for i in data:
     for j in data:
-        if i<j and i+j == 2020:
-                print(i,j,i*j)
+        if i < j and i + j == 2020:
+            print(i, j, i * j)
 print("Part 2:")
 for i in data:
     for j in data:
         for k in data:
-            if i<j<k and i+j+k == 2020:
-                print(i,j,k,i*j*k)
+            if i < j < k and i + j + k == 2020:
+                print(i, j, k, i * j * k)
+
