@@ -6,6 +6,7 @@ from functools import total_ordering
 
 
 LETTERS = [x for x in 'abcdefghijklmnopqrstuvwxyz']
+UPPER_LETTERS = [x for x in 'abcdefghijklmnopqrstuvwxyz'.upper()]
 VOWELS = {'a', 'e', 'i', 'o', 'u'}
 CONSONANTS = set(x for x in LETTERS if x not in VOWELS)
 
@@ -237,3 +238,29 @@ DIRS_8 = [
     Point(-1, 0),   # W
     Point(-1, 1),   # NW
 ]
+
+class Board(dict):
+    def __init__(self, data):
+        dict.__init__({})
+        w=h=0
+        for y,lin in enumerate(data.split("\n")):
+            h=y+1
+            for x,char in enumerate(lin):
+                w=x+1
+                self[Point(x,y)] = char
+        self.width=w
+        self.height=h
+
+    def __repr__(self, x_range=None, y_range=None):
+        x_range = x_range or range(self.width)
+        y_range = y_range or range(self.height)
+        
+        rep = "┌" + ("".join(str(i%10) for i in x_range)) + "x\n"
+        for y in y_range:
+            rep+=str(y%10)+"".join(self[Point(x,y)] for x in x_range)+"│\n"
+        rep += "y" + ("─"*len(x_range)) + "┘\n"
+        return rep
+        
+
+    
+    
