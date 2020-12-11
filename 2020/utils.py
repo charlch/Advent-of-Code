@@ -240,7 +240,7 @@ DIRS_8 = [
 ]
 
 class Board(dict):
-    def __init__(self, data):
+    def __init__(self, data=""):
         dict.__init__({})
         w=h=0
         for y,lin in enumerate(data.split("\n")):
@@ -251,16 +251,45 @@ class Board(dict):
         self.width=w
         self.height=h
 
+    def recalc_range(self):
+        w=h=0
+        for p in self:
+            w= max(w, p.x)
+            h= max(h, p.y)
+        self.width=w
+        self.height=h
+            
     def __repr__(self, x_range=None, y_range=None):
         x_range = x_range or range(self.width)
         y_range = y_range or range(self.height)
         
         rep = "┌" + ("".join(str(i%10) for i in x_range)) + "x\n"
         for y in y_range:
-            rep+=str(y%10)+"".join(self[Point(x,y)] for x in x_range)+"│\n"
+            rep+=str(y%10)+"".join(self.get(Point(x,y),"?") for x in x_range)+"│\n"
         rep += "y" + ("─"*len(x_range)) + "┘\n"
         return rep
+
+    def find_elements(self, elements):
+        return {p: char for p, char in self.items() if char in elements}
+
+    def copy(self, empty=False):
+        new_board = Board()
+        new_board.width = self.width
+        new_board.height = self.height
+        if not empty:
+            for k, v in self.items():
+                new_board[k]=v
+        return new_board
         
+    def transform(self, fn):
+        new_board = self.copy(empty = True)
+        any_change = False
+        for p, char in self.items():
+            new_char = fn(p, char, self)
+            if char != new_char:
+                any_change=True
+            new_board[p] = new_char
+        return new_board, any_change
 
     
     
