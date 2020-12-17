@@ -220,6 +220,22 @@ class Point:
     def neighbours_8(self):
         return [self + p for p in DIRS_8]
 
+    def turn_left(self, a):
+        if a ==90:
+            return Point(-self.y, self.x)
+        if a == 180:
+            return -self
+        if a== 270:
+            return Point(self.y, -self.x)
+
+    def turn_right(self, a):
+        if a ==90:
+            return Point(self.y, -self.x)
+        if a == 180:
+            return -self
+        if a== 270:
+            return Point(-self.y, self.x)
+
 
 DIRS_4 = DIRS = [
     Point(0, 1),   # north
@@ -287,7 +303,7 @@ class Board(dict):
         for p, char in self.items():
             new_char = fn(p, char, self)
             if char != new_char:
-                any_change=True
+                any_change = True
             new_board[p] = new_char
         return new_board, any_change
 
