@@ -20,7 +20,7 @@ def parse_line(regex, line):
             ret.append(match)
 
     return ret
-
+    
 
 def parse_nums(line, negatives=True):
     num_re = r'-?\d+' if negatives else r'\d+'
