@@ -275,7 +275,15 @@ class Board(dict):
         self.width=w
         self.height=h
             
-
+    def __repr__(self, x_range=None, y_range=None):
+        x_range = x_range or range(self.width+1)
+        y_range = y_range or range(self.height+1)
+        
+        rep = "┌" + ("".join(str(i%10) for i in x_range)) + "x\n"
+        for y in y_range:
+            rep+=str(y%10)+"".join(self.get(Point(x,y),"?") for x in x_range)+"│\n"
+        rep += "y" + ("─"*len(x_range)) + "┘\n"
+        return rep
 
     def find_elements(self, elements):
         return {p: char for p, char in self.items() if char in elements}
