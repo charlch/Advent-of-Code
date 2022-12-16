@@ -236,6 +236,9 @@ class Point:
         if a== 270:
             return Point(-self.y, self.x)
 
+    def unit(self):
+        return Point(int(self.x / self.length), int(self.y/self.length))
+
 
 DIRS_4 = DIRS = [
     Point(0, 1),   # north
@@ -276,8 +279,8 @@ class Board(dict):
         self.height=h
             
     def __repr__(self, x_range=None, y_range=None):
-        x_range = x_range or range(self.width+1)
-        y_range = y_range or range(self.height+1)
+        x_range = x_range or range(-5,self.width+6)
+        y_range = y_range or range(-5,self.height+6)
         
         rep = "┌" + ("".join(str(i%10) for i in x_range)) + "x\n"
         for y in y_range:
