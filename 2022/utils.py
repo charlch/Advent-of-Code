@@ -258,6 +258,69 @@ DIRS_8 = [
     Point(-1, 1),   # NW
 ]
 
+class Point3D():
+    def __init__(self, x, y, z):
+        self.x =x
+        self.y=y
+        self.z=z
+
+    def __add__(self, other):
+        return Point(self.x + other.x, self.y + other.y, self.z + other.z)
+
+    def __sub__(self, other):
+        return Point(self.x - other.x, self.y - other.y, self.z - other.z)
+
+    def __mul__(self, n):
+        return Point(self.x * n, self.y * n, self.z * n)
+
+    def __div__(self, n):
+        return Point(self.x / n, self.y / n, self.z/n)
+
+    def __neg__(self):
+        return Point(-self.x, -self.y, -self.z)
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y and self.z==other.z
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __lt__(self, other):
+        return self.length < other.length
+
+    def __str__(self):
+        return "({}, {}, {})".format(self.x, self.y, self.z)
+
+    def __repr__(self):
+        return "Point3D({}, {}, {})".format(self.x, self.y, self.z)
+
+    def __hash__(self):
+        return hash(tuple((self.x, self.y, self.z)))
+
+    def dist(self, other):
+        return math.sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2)
+
+    def dist_manhattan(self, other):
+        return abs(self.x - other.x) + abs(self.y - other.y) + abs(self.z -other.z)
+
+    @property
+    def manhattan(self):
+        return abs(self.x) + abs(self.y) + abs(self.z)
+
+    @property
+    def length(self):
+        return math.sqrt(self.x ** 2 + self.y ** 2 + self.z. ** 2)
+
+    def neighbours_6(self):
+        return [self + p for p in DIRS3D]
+
+
+DIRS3D = [Point3D(1,0,0),
+Point3D(-1,0,0),
+Point3D(0,1,0),
+Point3D(0,-1,0),
+Point3D(0,0,-1),Point3D(0,0,-1)]
+
 class Board(dict):
     def __init__(self, data=""):
         dict.__init__({})
